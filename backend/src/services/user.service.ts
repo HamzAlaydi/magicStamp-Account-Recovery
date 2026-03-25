@@ -42,16 +42,18 @@ export async function searchUsers(query: string, limit: number = 20): Promise<Us
  * Search by phone number in the identity table.
  * Returns the user(s) that own identities matching the phone query.
  */
-export async function searchByPhone(phone: string, limit: number = 20): Promise<(UserResult & { phone: string })[]> {
-  const searchPattern = `%${phone}%`;
+export async function searchByPhone(query: string, limit: number = 20): Promise<(UserResult & { phone: string; createdAt: string; provider: string })[]> {
+  const searchPattern = `%${query}%`;
+  const urnPattern = `${query}%`;
+
   const result = await pool.query(
-    `SELECT u.urn, u.first_name, u.last_name, u.email_address, i.auth_id as phone
+    `SELECT u.urn, u.first_name, u.last_name, u.email_address, i.auth_id as phone, i.created, i.provider
      FROM identity i
      JOIN "user" u ON u.urn = i.user_urn
-     WHERE i.provider = 'twilio_phone_number'
-       AND i.auth_id ILIKE $1
+     WHERE i.auth_id::text ILIKE $1
+        OR u.urn::text ILIKE $3
      LIMIT $2`,
-    [searchPattern, limit]
+    [searchPattern, limit, urnPattern]
   );
 
   return result.rows.map((row: any) => ({
@@ -60,6 +62,8 @@ export async function searchByPhone(phone: string, limit: number = 20): Promise<
     last_name: row.last_name || '',
     email_address: row.email_address || '',
     phone: row.phone || '',
+    createdAt: row.created || '',
+    provider: row.provider || '',
   }));
 }
 

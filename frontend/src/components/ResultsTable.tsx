@@ -6,6 +6,8 @@ export interface UserRow {
   last_name: string;
   email_address?: string;
   phone?: string;
+  createdAt?: string;
+  provider?: string;
 }
 
 interface ResultsTableProps {
@@ -60,6 +62,8 @@ export default function ResultsTable({ users, selectedUrn, onSelect, loading, ha
             <th>Email</th>
             {searchMode === 'phone' && <th>Phone</th>}
             <th>URN</th>
+            {searchMode === 'phone' && <th>Created At</th>}
+            {searchMode === 'phone' && <th>Provider</th>}
           </tr>
         </thead>
         <tbody>
@@ -81,6 +85,16 @@ export default function ResultsTable({ users, selectedUrn, onSelect, loading, ha
               <td style={{ fontSize: 'var(--font-xs)', fontFamily: "'Courier New', monospace", color: 'var(--text-muted)' }}>
                 {user.urn.length > 20 ? `${user.urn.slice(0, 20)}...` : user.urn}
               </td>
+              {searchMode === 'phone' && (
+                <td style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}>
+                  {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '—'}
+                </td>
+              )}
+              {searchMode === 'phone' && (
+                <td style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}>
+                  {user.provider || '—'}
+                </td>
+              )}
             </tr>
           ))}
         </tbody>
