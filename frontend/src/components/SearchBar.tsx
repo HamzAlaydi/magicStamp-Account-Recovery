@@ -41,8 +41,8 @@ export default function SearchBar({ onSearch, loading, resultCount }: SearchBarP
           👤 Search by Name / Email
         </button>
       </div>
-      <div className="search-container" style={{ display: 'flex', gap: '0.5rem', background: 'transparent', padding: 0, boxShadow: 'none' }}>
-        <div style={{ display: 'flex', alignItems: 'center', background: 'var(--input-bg)', borderRadius: '12px', padding: '0 1rem', flex: 1, border: '1px solid var(--border)', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2)' }}>
+      <div className="search-wrapper">
+        <div className="search-input-wrapper">
           <span className="search-icon">🔍</span>
           <input
             id="search-input"
@@ -63,7 +63,7 @@ export default function SearchBar({ onSearch, loading, resultCount }: SearchBarP
           <select 
             value={mode} 
             onChange={(e) => setMode(e.target.value as 'phone' | 'magic')}
-            style={{ padding: '0 1rem', borderRadius: '12px', border: '1px solid var(--border)', background: 'var(--panel-bg)', color: 'var(--text-primary)', outline: 'none', fontSize: 'var(--font-sm)', fontWeight: 500 }}
+            className="search-mode-select"
           >
             <option value="phone">Phone Number</option>
             <option value="magic">Magic ID</option>
