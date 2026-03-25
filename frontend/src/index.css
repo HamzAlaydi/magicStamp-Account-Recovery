@@ -431,11 +431,16 @@ body {
   padding: 0 var(--space-4);
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-default);
-  background: var(--panel-bg);
+  background: var(--bg-secondary);
   color: var(--text-primary);
   outline: none;
   font-size: var(--font-sm);
   font-weight: 500;
+}
+
+.search-mode-select option {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
 .search-meta {
@@ -973,6 +978,7 @@ body {
     width: 100%;
     height: 100%;
     z-index: 200;
+    background: var(--bg-primary);
   }
 
   .results-table th, .results-table td {

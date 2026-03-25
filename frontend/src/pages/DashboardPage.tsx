@@ -181,7 +181,7 @@ export default function DashboardPage() {
                     </tbody>
                   </table>
                   {auditTotal > AUDIT_LIMIT && (
-                    <div className="pagination" style={{ display: 'flex', justifyContent: 'center', gap: '1rem', padding: '1.5rem', borderTop: '1px solid var(--border)', background: 'var(--panel-bg)' }}>
+                    <div className="pagination" style={{ display: 'flex', justifyContent: 'center', gap: '1rem', padding: '1.5rem', borderTop: '1px solid var(--border-default)', background: 'var(--bg-glass)' }}>
                       <button 
                         className="btn btn-ghost btn-sm" 
                         disabled={auditPage <= 1 || auditLoading} 
