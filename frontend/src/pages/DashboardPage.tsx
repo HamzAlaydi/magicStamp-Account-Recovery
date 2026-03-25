@@ -24,6 +24,9 @@ export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState<'search' | 'audit'>('search');
   const [auditLog, setAuditLog] = useState<AuditEntry[]>([]);
   const [auditLoading, setAuditLoading] = useState(false);
+  const [auditPage, setAuditPage] = useState(1);
+  const [auditTotal, setAuditTotal] = useState(0);
+  const AUDIT_LIMIT = 50;
 
   const handleSearch = async (query: string, mode: 'name' | 'phone') => {
     setLoading(true);
@@ -48,11 +51,12 @@ export default function DashboardPage() {
     setSelectedUrn(null);
   };
 
-  const loadAuditLog = async () => {
+  const loadAuditLog = async (page: number = auditPage) => {
     setAuditLoading(true);
     try {
-      const res = await api.get('/audit');
+      const res = await api.get('/audit', { params: { page, limit: AUDIT_LIMIT } });
       setAuditLog(res.data.entries);
+      setAuditTotal(res.data.total);
     } catch (err) {
       console.error('Failed to load audit log:', err);
     } finally {
@@ -62,8 +66,11 @@ export default function DashboardPage() {
 
   const switchToAudit = () => {
     setActiveTab('audit');
-    loadAuditLog();
+    loadAuditLog(1);
+    setAuditPage(1);
   };
+  
+  const totalAuditPages = Math.ceil(auditTotal / AUDIT_LIMIT);
 
   return (
     <div className="dashboard">
@@ -133,45 +140,68 @@ export default function DashboardPage() {
                   <span className="spinner" /> Loading audit log...
                 </div>
               ) : (
-                <table className="audit-table">
-                  <thead>
-                    <tr>
-                      <th>Timestamp</th>
-                      <th>Agent</th>
-                      <th>Action</th>
-                      <th>Target</th>
-                      <th>Details</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {auditLog.map((entry) => (
-                      <tr key={entry.id}>
-                        <td style={{ whiteSpace: 'nowrap' }}>
-                          {new Date(entry.timestamp).toLocaleString()}
-                        </td>
-                        <td>{entry.agentUsername}</td>
-                        <td>
-                          <span className={`action-badge ${entry.action}`}>
-                            {entry.action.replace('_', ' ')}
-                          </span>
-                        </td>
-                        <td style={{ fontFamily: "'Courier New', monospace", fontSize: 'var(--font-xs)' }}>
-                          {entry.target ? (entry.target.length > 20 ? `${entry.target.slice(0, 20)}...` : entry.target) : '—'}
-                        </td>
-                        <td style={{ maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {entry.details || '—'}
-                        </td>
-                      </tr>
-                    ))}
-                    {auditLog.length === 0 && (
+                <>
+                  <table className="audit-table">
+                    <thead>
                       <tr>
-                        <td colSpan={5} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
-                          No audit entries yet
-                        </td>
+                        <th>Timestamp</th>
+                        <th>Agent</th>
+                        <th>Action</th>
+                        <th>Target</th>
+                        <th>Details</th>
                       </tr>
-                    )}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody>
+                      {auditLog.map((entry) => (
+                        <tr key={entry.id}>
+                          <td style={{ whiteSpace: 'nowrap' }}>
+                            {new Date(entry.timestamp).toLocaleString()}
+                          </td>
+                          <td>{entry.agentUsername}</td>
+                          <td>
+                            <span className={`action-badge ${entry.action}`}>
+                              {entry.action.replace('_', ' ')}
+                            </span>
+                          </td>
+                          <td style={{ fontFamily: "'Courier New', monospace", fontSize: 'var(--font-xs)' }}>
+                            {entry.target ? (entry.target.length > 20 ? `${entry.target.slice(0, 20)}...` : entry.target) : '—'}
+                          </td>
+                          <td style={{ maxWidth: '300px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {entry.details || '—'}
+                          </td>
+                        </tr>
+                      ))}
+                      {auditLog.length === 0 && (
+                        <tr>
+                          <td colSpan={5} style={{ textAlign: 'center', padding: '2rem', color: 'var(--text-muted)' }}>
+                            No audit entries yet
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                  {auditTotal > AUDIT_LIMIT && (
+                    <div className="pagination" style={{ display: 'flex', justifyContent: 'center', gap: '1rem', padding: '1.5rem', borderTop: '1px solid var(--border)', background: 'var(--panel-bg)' }}>
+                      <button 
+                        className="btn btn-ghost btn-sm" 
+                        disabled={auditPage <= 1 || auditLoading} 
+                        onClick={() => { const p = auditPage - 1; setAuditPage(p); loadAuditLog(p); }}
+                      >
+                        ← Previous
+                      </button>
+                      <span style={{ alignSelf: 'center', fontSize: 'var(--font-sm)', color: 'var(--text-muted)' }}>
+                        Page {auditPage} of {totalAuditPages}
+                      </span>
+                      <button 
+                        className="btn btn-ghost btn-sm" 
+                        disabled={auditPage >= totalAuditPages || auditLoading} 
+                        onClick={() => { const p = auditPage + 1; setAuditPage(p); loadAuditLog(p); }}
+                      >
+                        Next →
+                      </button>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           )}
