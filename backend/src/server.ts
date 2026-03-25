@@ -13,7 +13,22 @@ const app = express();
 
 // Global middleware
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const allowed = [
+      'http://localhost:5173',
+      'http://127.0.0.1:5173'
+    ];
+    
+    // Allow any origin from vercel.app or localhost
+    if (origin.endsWith('.vercel.app') || allowed.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
 }));
 app.use(express.json());

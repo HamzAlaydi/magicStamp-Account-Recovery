@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://magic-stamp-account-recovery-backend.vercel.app/api/$1"
+      "destination": "https://magic-stamp-backend.vercel.app/api/$1"
     },
     {
       "source": "/(.*)",
