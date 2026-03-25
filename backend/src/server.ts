@@ -38,9 +38,6 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Auth routes (no auth middleware needed for login)
-app.use('/api/auth', authRoutes);
-
 // Apply stricter rate limit to reveal endpoint
 app.use('/api/users/:urn/reveal-phone', revealLimiter);
 
@@ -54,6 +51,9 @@ app.use(async (req, res, next) => {
     res.status(500).json({ error: 'Database connection failed' });
   }
 });
+
+// Auth routes (no auth middleware needed for login)
+app.use('/api/auth', authRoutes);
 
 // Protected routes (applied after lazy connect)
 app.use('/api/users', authMiddleware, searchLimiter, userRoutes);
