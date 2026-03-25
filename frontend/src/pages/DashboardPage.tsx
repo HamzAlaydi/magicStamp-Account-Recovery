@@ -20,7 +20,7 @@ export default function DashboardPage() {
   const [selectedUrn, setSelectedUrn] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
-  const [searchMode, setSearchMode] = useState<'name' | 'phone'>('phone');
+  const [searchMode, setSearchMode] = useState<'name' | 'phone' | 'magic'>('phone');
   const [activeTab, setActiveTab] = useState<'search' | 'audit'>('search');
   const [auditLog, setAuditLog] = useState<AuditEntry[]>([]);
   const [auditLoading, setAuditLoading] = useState(false);
@@ -28,7 +28,7 @@ export default function DashboardPage() {
   const [auditTotal, setAuditTotal] = useState(0);
   const AUDIT_LIMIT = 50;
 
-  const handleSearch = async (query: string, mode: 'name' | 'phone') => {
+  const handleSearch = async (query: string, mode: 'name' | 'phone' | 'magic') => {
     setLoading(true);
     setHasSearched(true);
     setSearchMode(mode);

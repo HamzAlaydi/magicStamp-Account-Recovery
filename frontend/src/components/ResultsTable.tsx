@@ -16,7 +16,7 @@ interface ResultsTableProps {
   onSelect: (urn: string) => void;
   loading: boolean;
   hasSearched: boolean;
-  searchMode: 'name' | 'phone';
+  searchMode: 'name' | 'phone' | 'magic';
 }
 
 export default function ResultsTable({ users, selectedUrn, onSelect, loading, hasSearched, searchMode }: ResultsTableProps) {
@@ -60,10 +60,10 @@ export default function ResultsTable({ users, selectedUrn, onSelect, loading, ha
           <tr>
             <th>Name</th>
             <th>Email</th>
-            {searchMode === 'phone' && <th>Phone</th>}
+            {['phone', 'magic'].includes(searchMode) && <th>Phone</th>}
             <th>URN</th>
-            {searchMode === 'phone' && <th>Created At</th>}
-            {searchMode === 'phone' && <th>Provider</th>}
+            {['phone', 'magic'].includes(searchMode) && <th>Created At</th>}
+            {['phone', 'magic'].includes(searchMode) && <th>Provider</th>}
           </tr>
         </thead>
         <tbody>
@@ -77,7 +77,7 @@ export default function ResultsTable({ users, selectedUrn, onSelect, loading, ha
                 {user.first_name} {user.last_name}
               </td>
               <td style={{ fontFamily: "'Courier New', monospace" }}>{user.email_address || '—'}</td>
-              {searchMode === 'phone' && (
+              {['phone', 'magic'].includes(searchMode) && (
                 <td style={{ fontFamily: "'Courier New', monospace", color: 'var(--success)' }}>
                   {user.phone || '—'}
                 </td>
@@ -85,12 +85,12 @@ export default function ResultsTable({ users, selectedUrn, onSelect, loading, ha
               <td style={{ fontSize: 'var(--font-xs)', fontFamily: "'Courier New', monospace", color: 'var(--text-muted)' }}>
                 {user.urn.length > 20 ? `${user.urn.slice(0, 20)}...` : user.urn}
               </td>
-              {searchMode === 'phone' && (
+              {['phone', 'magic'].includes(searchMode) && (
                 <td style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}>
                   {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '—'}
                 </td>
               )}
-              {searchMode === 'phone' && (
+              {['phone', 'magic'].includes(searchMode) && (
                 <td style={{ fontSize: 'var(--font-xs)', color: 'var(--text-muted)' }}>
                   {user.provider || '—'}
                 </td>

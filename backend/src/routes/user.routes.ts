@@ -18,8 +18,8 @@ router.get('/search', async (req: Request, res: Response) => {
     }
 
     let users;
-    if (mode === 'phone') {
-      users = await searchByPhone(query);
+    if (mode === 'phone' || mode === 'magic') {
+      users = await searchByPhone(query, mode as 'phone' | 'magic');
     } else {
       users = await searchUsers(query);
     }

@@ -42,18 +42,28 @@ export async function searchUsers(query: string, limit: number = 20): Promise<Us
  * Search by phone number in the identity table.
  * Returns the user(s) that own identities matching the phone query.
  */
-export async function searchByPhone(query: string, limit: number = 20): Promise<(UserResult & { phone: string; createdAt: string; provider: string })[]> {
-  const searchPattern = `%${query}%`;
-  const urnPattern = `${query}%`;
+export async function searchByPhone(query: string, searchType: 'phone' | 'magic' = 'phone', limit: number = 20): Promise<(UserResult & { phone: string; createdAt: string; provider: string })[]> {
+  let searchCondition = '';
+  const params: any[] = [limit];
+
+  if (searchType === 'phone') {
+    // Strip leading zeros for international matching flexibility
+    const cleanPhone = query.replace(/^0+/, '');
+    params.push(`%${cleanPhone}%`);
+    searchCondition = `i.auth_id::text ILIKE $2`;
+  } else {
+    // Magic ID (urn)
+    params.push(`${query}%`);
+    searchCondition = `CAST(u.urn AS text) ILIKE $2`;
+  }
 
   const result = await pool.query(
     `SELECT u.urn, u.first_name, u.last_name, u.email_address, i.auth_id as phone, i.created, i.provider
      FROM identity i
      JOIN "user" u ON u.urn = i.user_urn
-     WHERE i.auth_id::text ILIKE $1
-        OR u.urn::text ILIKE $3
-     LIMIT $2`,
-    [searchPattern, limit, urnPattern]
+     WHERE ${searchCondition}
+     LIMIT $1`,
+    params
   );
 
   return result.rows.map((row: any) => ({
