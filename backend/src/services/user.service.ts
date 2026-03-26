@@ -5,6 +5,9 @@ export interface UserResult {
   first_name: string;
   last_name: string;
   email_address: string;
+  email_verified: boolean;
+  created: string;
+  modified: string;
 }
 
 export interface IdentityResult {
@@ -18,14 +21,17 @@ export interface UserDetail {
   identities: IdentityResult[];
 }
 
-export async function searchUsers(query: string, limit: number = 20): Promise<UserResult[]> {
+export async function searchUsers(query: string, limit: number = 20): Promise<(UserResult & { phone: string; provider: string })[]> {
   const searchPattern = `%${query}%`;
   const result = await pool.query(
-    `SELECT urn, first_name, last_name, email_address
-     FROM "user"
-     WHERE email_address ILIKE $1
-        OR first_name ILIKE $1
-        OR last_name ILIKE $1
+    `SELECT u.urn, u.first_name, u.last_name, u.email_address, u.email_verified,
+            u.created, u.modified,
+            i.auth_id AS phone, i.provider
+     FROM "user" u
+     LEFT JOIN identity i ON i.user_urn = u.urn AND i.provider = 'twilio_phone_number'
+     WHERE u.email_address ILIKE $1
+        OR u.first_name ILIKE $1
+        OR u.last_name ILIKE $1
      LIMIT $2`,
     [searchPattern, limit]
   );
@@ -35,6 +41,11 @@ export async function searchUsers(query: string, limit: number = 20): Promise<Us
     first_name: row.first_name || '',
     last_name: row.last_name || '',
     email_address: row.email_address || '',
+    email_verified: row.email_verified ?? false,
+    created: row.created || '',
+    modified: row.modified || '',
+    phone: row.phone || '',
+    provider: row.provider || '',
   }));
 }
 
@@ -58,7 +69,9 @@ export async function searchByPhone(query: string, searchType: 'phone' | 'magic'
   }
 
   const result = await pool.query(
-    `SELECT u.urn, u.first_name, u.last_name, u.email_address, i.auth_id as phone, i.created, i.provider
+    `SELECT u.urn, u.first_name, u.last_name, u.email_address, u.email_verified,
+            u.created AS user_created, u.modified AS user_modified,
+            i.auth_id as phone, i.created, i.provider
      FROM identity i
      JOIN "user" u ON u.urn = i.user_urn
      WHERE ${searchCondition}
@@ -71,6 +84,9 @@ export async function searchByPhone(query: string, searchType: 'phone' | 'magic'
     first_name: row.first_name || '',
     last_name: row.last_name || '',
     email_address: row.email_address || '',
+    email_verified: row.email_verified ?? false,
+    created: row.user_created || '',
+    modified: row.user_modified || '',
     phone: row.phone || '',
     createdAt: row.created || '',
     provider: row.provider || '',
@@ -79,7 +95,7 @@ export async function searchByPhone(query: string, searchType: 'phone' | 'magic'
 
 export async function getUserDetails(urn: string): Promise<UserDetail | null> {
   const userResult = await pool.query(
-    `SELECT urn, first_name, last_name, email_address
+    `SELECT urn, first_name, last_name, email_address, email_verified, created, modified
      FROM "user"
      WHERE urn = $1`,
     [urn]
@@ -108,6 +124,9 @@ export async function getUserDetails(urn: string): Promise<UserDetail | null> {
       first_name: user.first_name || '',
       last_name: user.last_name || '',
       email_address: user.email_address || '',
+      email_verified: user.email_verified ?? false,
+      created: user.created || '',
+      modified: user.modified || '',
     },
     identities,
   };

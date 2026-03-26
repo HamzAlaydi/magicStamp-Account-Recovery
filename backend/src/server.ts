@@ -7,6 +7,7 @@ import { searchLimiter, revealLimiter } from './middleware/rateLimit';
 import authRoutes from './routes/auth.routes';
 import userRoutes from './routes/user.routes';
 import auditRoutes from './routes/audit.routes';
+import parktechRoutes from './routes/parktech.routes';
 import { seedAdminsFromEnv } from './services/adminSeed.service';
 
 const app = express();
@@ -58,6 +59,7 @@ app.use('/api/auth', authRoutes);
 // Protected routes (applied after lazy connect)
 app.use('/api/users', authMiddleware, searchLimiter, userRoutes);
 app.use('/api/audit', authMiddleware, auditRoutes);
+app.use('/api/parktech', authMiddleware, searchLimiter, parktechRoutes);
 
 // Export for Vercel
 export default app;

@@ -20,7 +20,7 @@ export default function DashboardPage() {
   const [selectedUrn, setSelectedUrn] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
-  const [searchMode, setSearchMode] = useState<'name' | 'phone' | 'magic'>('phone');
+  const [searchMode, setSearchMode] = useState<'name' | 'phone' | 'magic' | 'event'>('phone');
   const [activeTab, setActiveTab] = useState<'search' | 'audit'>('search');
   const [auditLog, setAuditLog] = useState<AuditEntry[]>([]);
   const [auditLoading, setAuditLoading] = useState(false);
@@ -28,12 +28,17 @@ export default function DashboardPage() {
   const [auditTotal, setAuditTotal] = useState(0);
   const AUDIT_LIMIT = 50;
 
-  const handleSearch = async (query: string, mode: 'name' | 'phone' | 'magic') => {
+  const handleSearch = async (query: string, mode: 'name' | 'phone' | 'magic' | 'event') => {
     setLoading(true);
     setHasSearched(true);
     setSearchMode(mode);
     try {
-      const res = await api.get('/users/search', { params: { q: query, mode } });
+      let res;
+      if (mode === 'event') {
+        res = await api.get('/parktech/search', { params: { eventUrn: query } });
+      } else {
+        res = await api.get('/users/search', { params: { q: query, mode } });
+      }
       setUsers(res.data.users);
     } catch (err) {
       console.error('Search failed:', err);

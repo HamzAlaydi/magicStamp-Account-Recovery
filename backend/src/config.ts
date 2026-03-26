@@ -9,6 +9,13 @@ export const config = {
     user: process.env.DATABASE_USER || 'parktech',
     password: process.env.DATABASE_PASSWORD || '',
   },
+  parktechDb: {
+    host: process.env.DATABASE_HOST || 'localhost',
+    port: parseInt(process.env.DATABASE_PORT || '5432'),
+    database: process.env.PARKTECH_DATABASE_NAME || 'parktech',
+    user: process.env.DATABASE_USER || 'parktech',
+    password: process.env.DATABASE_PASSWORD || '',
+  },
   mongo: {
     uri: process.env.MONGODB_URI || '',
   },
