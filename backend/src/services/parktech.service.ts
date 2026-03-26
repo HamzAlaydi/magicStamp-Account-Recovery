@@ -1,4 +1,4 @@
-import parktechPool from '../parktechDb';
+import getPool from '../parktechDb';
 import pool from '../db';
 
 export interface ParktechCustomer {
@@ -33,7 +33,7 @@ export interface EventSearchResult {
  */
 export async function searchByEventUrn(eventUrn: string): Promise<EventSearchResult | null> {
   // Step 1: Get event + customer from parktech DB
-  const eventResult = await parktechPool.query(
+  const eventResult = await getPool().query(
     `SELECT
        e.urn AS event_urn,
        e.type AS event_type,
