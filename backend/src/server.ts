@@ -47,9 +47,13 @@ app.use(async (req, res, next) => {
   try {
     await connectMongo();
     next();
-  } catch (err) {
+  } catch (err: any) {
     console.error('MongoDB connection error in request:', err);
-    res.status(500).json({ error: 'Database connection failed' });
+    res.status(500).json({
+      error: 'Database connection failed',
+      detail: process.env.NODE_ENV !== 'production' ? err.message : undefined,
+      hint: !process.env.MONGODB_URI ? 'MONGODB_URI env var is not set' : 'Check MongoDB connection string and network access',
+    });
   }
 });
 
